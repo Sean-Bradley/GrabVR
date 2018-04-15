@@ -1,0 +1,26 @@
+{
+  "name": "grabvr",
+  "version": "1.0.0",
+  "description": "A module for grabbing objects in WebVR, Three.js and VRController.js projects",
+  "main": "grabvr.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sean-Bradley/GrabVR.git"
+  },
+  "keywords": [
+    "grabvr",
+    "three.js",
+    "webvr",
+    "vrcontroller.js",
+    "seanwasere"
+  ],
+  "author": "Sean Bradley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sean-Bradley/GrabVR/issues"
+  },
+  "homepage": "https://github.com/Sean-Bradley/GrabVR#readme"
+}
