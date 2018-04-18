@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>SeanWasEre Youtube - GrabVR Demo using TeleportVR, Physijs and other bells and whistles</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            line-height: 20px;
+        }
+
+        button {
+            border-radius: 4px;
+            background-color: #F40 !important;
+            padding: 12px !important;
+        }
+    </style>
+    <script type="text/javascript" src="js/three.min.js"></script>
+    <script type="text/javascript" src="js/webvr.js"></script>
+    <script type="text/javascript" src="js/VRController.js"></script>
+    <script type="text/javascript" src="js/teleportvr.min.js"></script>
+    <script type="text/javascript" src="js/statsvr.js"></script>
+    <script type="text/javascript" src="js/grabvr.js"></script>
+    <script type="text/javascript" src="js/Reflector.js"></script>
+    <script type="text/javascript" src="js/physi.js"></script>
+</head>
+
+<body>
+    <a href="https://github.com/Sean-Bradley">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+            alt="Fork me on GitHub">
+    </a>
+    <script>
+
+        WEBVR.checkAvailability().catch(function (message) {
+            document.body.appendChild(WEBVR.getMessageContainer(message))
+        })
+        Physijs.scripts.worker = 'js/physijs_worker.js';
+        Physijs.scripts.ammo = 'ammo.js';
+
+        var camera, scene, renderer;
+        var clock = new THREE.Clock();
+
+        var statsVR;
+
+        var teleportVR;
+
+        var collidableMeshList = [];
+        var hudX;
+        var hudY;
+        var bullets = [];
+        var bulletCounter = 0;
+        var maxBullets = 20;
+        var particleCount = 2;
+        var particles = {};
+        var explosionCounter = 0;
+        var totalExplosionCount = 10;
+
+        function init() {
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setClearColor(0x000000);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.vr.enabled = true;
+            renderer.vr.standing = true;
+            document.body.appendChild(renderer.domElement);
+
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100)
+            //scene = new THREE.Scene();
+            scene = new Physijs.Scene;
+            scene.add(camera)
+
+            grabVR = new GrabVR(scene, true);
+
+            teleportVR = new TeleportVR(scene, camera);
+
+            statsVR = new StatsVR(scene, camera);
+
+            hudX = new THREE.Object3D();
+            var geometry;
+            var line;
+            geometry = new THREE.Geometry();
+            geometry.vertices.push(new THREE.Vector3(-.5, 0, 0));
+            geometry.vertices.push(new THREE.Vector3(.5, 0, 0));
+            line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x888888 }));
+            line.position.z = -5;
+            statsVR.add(line);
+            geometry = new THREE.Geometry();
+            geometry.vertices.push(new THREE.Vector3(0, -.5, 0));
+            geometry.vertices.push(new THREE.Vector3(0, .5, 0));
+            line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x888888 }));
+            line.position.z = -5;
+            statsVR.add(line);
+
+            for (var i = 0; i < 360; i = i + 5) {
+                geometry = new THREE.Geometry();
+                if (i % 10 === 0) {
+                    geometry.vertices.push(new THREE.Vector3(0, -.1, 0));
+                    geometry.vertices.push(new THREE.Vector3(0, .1, 0));
+                } else {
+                    geometry.vertices.push(new THREE.Vector3(0, -.05, 0));
+                    geometry.vertices.push(new THREE.Vector3(0, .05, 0));
+                }
+                line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x888888 }));
+                line.position.x = 5 * Math.cos(i * Math.PI / 180);
+                line.position.z = 5 * Math.sin(i * Math.PI / 180);
+                hudX.add(line);
+            }
+
+            hudY = new THREE.Object3D();
+            for (var i = 0; i < 360; i = i + 5) {
+                var geometry = new THREE.Geometry();
+                if (i % 10 === 0) {
+                    geometry.vertices.push(new THREE.Vector3(-.1, 0, 0));
+                    geometry.vertices.push(new THREE.Vector3(.1, 0, 0));
+                } else {
+                    geometry.vertices.push(new THREE.Vector3(-.05, 0, 0));
+                    geometry.vertices.push(new THREE.Vector3(.05, 0, 0));
+                }
+                var line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x888888 }));
+                line.position.z = 5 * Math.cos(i * Math.PI / 180);
+                line.position.y = 5 * Math.sin(i * Math.PI / 180);
+                hudY.add(line);
+            }
+
+            statsVR.add(hudX);
+            statsVR.add(hudY);
+
+
+            WEBVR.getVRDisplay(function (display) {
+                renderer.vr.setDevice(display);
+                document.body.appendChild(WEBVR.getButton(display, renderer.domElement));
+            })
+
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            window.addEventListener('resize', onWindowResize, false);
+
+            //a scene light
+            scene.add(new THREE.HemisphereLight(0xffffff));
+
+            //the floor
+            var wireframeFloor = new Physijs.BoxMesh(
+                new THREE.CubeGeometry(100, 1, 100),
+                new THREE.MeshBasicMaterial({
+                    color: 0x008800,
+                    wireframe: true
+                }),
+                0 //mass
+            )
+            wireframeFloor.position.y = -0.5;
+            collidableMeshList.push(wireframeFloor);
+            scene.add(wireframeFloor);
+
+            var groundMirror = new THREE.Reflector(
+                new THREE.PlaneBufferGeometry(100, 100, 10, 10),
+                {
+                    clipBias: 0.1,
+                    textureWidth: 1024,
+                    textureHeight: 1024,
+                    color: 0x004400,
+                    recursion: 0.1
+                });
+            groundMirror.rotateX(- Math.PI / 2);
+            scene.add(groundMirror);
+
+            for (var i = 0; i < 40; i++) {
+                var w = getRandomInt(0, 2.5);
+                var h = getRandomInt(0, 6);
+                var l = getRandomInt(0, 2.5);
+                //var cube = new THREE.Mesh(
+                var cube = new Physijs.BoxMesh(
+                    new THREE.CubeGeometry(w, h, l),
+                    new THREE.MeshBasicMaterial({
+                        color: 0x88ff,
+                        wireframe: true
+                    }),
+                    .5
+                )
+                cube.position.x = getRandomInt(-50, 50);
+                cube.position.y = 10;//h / 2;
+                cube.position.z = getRandomInt(-50, 50);
+                cube.userData.type = 1; //1 = scene obstacle
+                collidableMeshList.push(cube);
+                //cubes.push(cube);
+                scene.add(cube);
+            }
+            //grabable objects
+            //  cubes
+            for (var i = 0; i < 20; i++) {
+                var grabable = new Physijs.BoxMesh(
+                    new THREE.CubeGeometry(1.0, 1.0, 1.0),
+                    new THREE.MeshBasicMaterial({
+                        color: 0xff0066,
+                        wireframe: true
+                    }),
+                    undefined,
+                    { restitution: 1.0 }
+                )
+                grabable.position.x = getRandomInt(-10, 10);
+                grabable.position.y = getRandomInt(2, 10);
+                grabable.position.z = getRandomInt(-10, 10);
+
+                grabVR.grabableObjects.push(grabable);
+
+                scene.add(grabable);
+            }
+            //  spheres
+            for (var i = 0; i < 20; i++) {
+                var grabable = new Physijs.SphereMesh(
+                    new THREE.SphereGeometry(.5, 6, 6),
+                    new THREE.MeshBasicMaterial({
+                        color: 0x0099ff,
+                        wireframe: true
+                    }),
+                    undefined,
+                    { restitution: 1.0 }
+                )
+                grabable.position.x = getRandomInt(-10, 10);
+                grabable.position.y = getRandomInt(2, 10);
+                grabable.position.z = getRandomInt(-10, 10);
+
+                grabVR.grabableObjects.push(grabable);
+
+                scene.add(grabable);
+            }
+            //  cones
+            for (var i = 0; i < 20; i++) {
+                var grabable = new Physijs.ConeMesh(
+                    new THREE.CylinderGeometry(0, 1, 1, 5),
+                    new THREE.MeshBasicMaterial({
+                        color: 0xffcc00,
+                        wireframe: true
+                    }),
+                    undefined,
+                    { restitution: 1.0 }
+                )
+                grabable.position.x = getRandomInt(-10, 10);
+                grabable.position.y = getRandomInt(2, 10);
+                grabable.position.z = getRandomInt(-10, 10);
+
+                grabVR.grabableObjects.push(grabable);
+
+                scene.add(grabable);
+            }
+
+            for (var i = 0; i < maxBullets; i++) {
+                //var b = new THREE.Mesh(
+                var b = new Physijs.BoxMesh(
+                    new THREE.CubeGeometry(.025, .025, 1),
+                    new THREE.MeshBasicMaterial({
+                        color: 0xff0000,
+                        wireframe: true
+                    }),
+                    .1
+                );
+                //b.rotation.z = Math.PI / -2;
+                b.userData.type = 2;//2 = bullet
+                //b.lifeTime = 0;
+                bullets.push(b);
+                collidableMeshList.push(b);
+                b.visible = false;
+                scene.add(b);
+
+                b.addEventListener('collision', function (other_object, relative_velocity, relative_rotation, contact_normal) {
+                    // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
+                    explode(this.position, explosionCounter);
+                    explosionCounter++;
+                    if (explosionCounter >= totalExplosionCount) {
+                        explosionCounter = 0;
+                    }
+                });
+            }
+        }
+        init();
+
+        window.addEventListener('vr controller connected', function (event) {
+            var controller = event.detail;
+
+            teleportVR.add(controller);
+
+            grabVR.add(controller);
+
+
+            controller.standingMatrix = renderer.vr.getStandingMatrix();
+
+            controller.head = window.camera;
+
+
+            controller.addEventListener('primary press began', function (event) {
+                this.gamepad.hapticActuators[0].pulse(0.3, 10);
+                bullets[bulletCounter].visible = false;
+                controller.getWorldQuaternion(bullets[bulletCounter].quaternion);
+                bullets[bulletCounter].__dirtyRotation = true;
+                controller.getWorldPosition(bullets[bulletCounter].position);
+                bullets[bulletCounter].__dirtyPosition = true;
+                bullets[bulletCounter].translateZ(-1);
+
+                var v1 = new THREE.Vector3(0, 0, -1).applyQuaternion(bullets[bulletCounter].quaternion);
+                bullets[bulletCounter].setAngularVelocity(new THREE.Vector3(0, 0, 0));
+                bullets[bulletCounter].setLinearVelocity(v1.multiplyScalar(50));
+                bullets[bulletCounter].visible = true;
+                bulletCounter += 1;
+                if (bulletCounter >= maxBullets) {
+                    bulletCounter = 0;
+                }
+                //gun recoil, redo later
+                controller.grabVR.mesh.translateY(-.15);
+                setTimeout(function () { controller.grabVR.mesh.translateY(.15); }, 100);
+            })
+
+            controller.addEventListener('grip press began', function (event) {
+                this.gamepad.hapticActuators[0].pulse(0.3, 25);
+                grabVR.grab(controller);
+            })
+            controller.addEventListener('grip press ended', function (event) {
+                grabVR.release(controller);
+            })
+
+            controller.addEventListener('thumbstick touch began', function (event) {
+                if (!controller.grabVR.hasAGrabbedObject) {
+                    teleportVR.show(controller);
+                }
+            })
+
+            controller.addEventListener('thumbstick axes changed', function (event) {
+                if (!controller.grabVR.hasAGrabbedObject) {
+                    if (Math.abs(event.axes[0]) > 0.01 && Math.abs(event.axes[1]) > 0.01) {
+                        var angleDeg = Math.atan2(-event.axes[0], -event.axes[1]);
+                        teleportVR.target.rotation.y = angleDeg;
+                    }
+                } else {
+                    if (event.axes[1] > 0) {
+                        if (controller.grabVR.grabberHook.position.z < -1) {
+                            controller.grabVR.grabberHook.translateZ(event.axes[1] / 10);
+                        }
+                    } else {
+                        controller.grabVR.grabberHook.translateZ(event.axes[1] / 10);
+                    }
+                }
+            })
+            controller.addEventListener('thumbstick touch ended', function (event) {
+                if (!controller.grabVR.hasAGrabbedObject) {
+                    teleportVR.teleport();
+                }
+            })
+
+            controller.addEventListener('disconnected', function (event) {
+                controller.parent.remove(controller)
+            })
+        })
+
+        for (var i = 0; i < totalExplosionCount; i++) {
+            addExplosion(i);
+        }
+        function addExplosion(i) {
+            var particleGeometry = new THREE.Geometry();
+            for (var j = 0; j < particleCount; j++) {
+                var vertex = new THREE.Vector3();
+                particleGeometry.vertices.push(vertex);
+            }
+            var pMaterial = new THREE.PointsMaterial({
+                color: 0xfffafa,
+                size: 0.2
+            });
+            particles[i] = new THREE.Points(particleGeometry, pMaterial);
+            scene.add(particles[i]);
+            particles[i].visible = false;
+        }
+        function explode(point, i) {
+            particles[i].position.x = point.x;
+            particles[i].position.y = point.y;
+            particles[i].position.z = point.z;
+            for (var j = 0; j < particleCount; j++) {
+                var vertex = new THREE.Vector3();
+                vertex.x = -0.2 + Math.random() * 0.4;
+                vertex.y = -0.2 + Math.random() * 0.4;
+                vertex.z = -0.2 + Math.random() * 0.4;
+                particles[i].geometry.vertices[j] = vertex;
+            }
+            particles[i].explosionPower = 1.07;
+            particles[i].visible = true;
+        }
+        function doExplosionLogic(i) {
+            if (!particles[i].visible) return;
+            for (var j = 0; j < particleCount; j++) {
+                particles[i].geometry.vertices[j].multiplyScalar(particles[i].explosionPower);
+            }
+            if (particles[i].explosionPower > 1.009) {
+                particles[i].explosionPower -= 0.001 * dt;
+            } else {
+                particles[i].visible = false;
+            }
+            particles[i].geometry.verticesNeedUpdate = true;
+        }
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        var dt = 1;
+        var HalfPI = Math.PI / 2;
+
+        function render(time) {
+            statsVR.msStart();
+            statsVR.update();
+
+            dt = clock.getDelta();
+
+            THREE.VRController.update();
+            grabVR.update(dt);
+            teleportVR.update(collidableMeshList);
+
+            var lookAtVector = new THREE.Vector3(0, 0, -1);
+            lookAtVector.applyQuaternion(camera.quaternion);
+
+            var mx = new THREE.Matrix4().lookAt(lookAtVector, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0));
+            var qt = new THREE.Quaternion().setFromRotationMatrix(mx);
+
+            var rotation = new THREE.Euler().setFromQuaternion(qt, 'XYZ');
+            if (rotation.x >= -HalfPI && rotation.x < HalfPI) {
+                hudX.rotation.y = rotation.y * -1;
+            } else {
+                hudX.rotation.y = rotation.y;
+            }
+            rotation = new THREE.Euler().setFromQuaternion(qt, 'YZX');
+            if (rotation.y >= -HalfPI && rotation.y < HalfPI) {
+                hudY.rotation.x = rotation.x * -1;
+            } else {
+                hudY.rotation.x = rotation.x;
+            }
+
+            for (var i = 0; i < totalExplosionCount; i++) {
+                doExplosionLogic(i);
+            }
+
+            renderer.render(scene, camera);
+
+            scene.simulate(dt); // run physics
+
+            statsVR.msEnd();
+        }
+        renderer.animate(render);
+
+    </script>
+</body>
+
+</html>

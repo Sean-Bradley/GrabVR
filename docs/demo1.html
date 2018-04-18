@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>SeanWasEre Youtube - GrabVR Basic Usage Demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            line-height: 20px;
+        }
+
+        button {
+            border-radius: 4px;
+            background-color: #F40 !important;
+            padding: 12px !important;
+        }
+    </style>
+    <script type="text/javascript" src="js/three.min.js"></script>
+    <script type="text/javascript" src="js/webvr.js"></script>
+    <script type="text/javascript" src="js/VRController.js"></script>
+    <script type="text/javascript" src="js/statsvr.js"></script>
+    <script type="text/javascript" src="js/grabvr.js"></script>
+    <script type="text/javascript" src="js/Reflector.js"></script>
+</head>
+
+<body>
+    <a href="https://github.com/Sean-Bradley">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+            alt="Fork me on GitHub">
+    </a>
+    <script>
+
+        WEBVR.checkAvailability().catch(function (message) {
+            document.body.appendChild(WEBVR.getMessageContainer(message))
+        })
+
+        var camera, scene, renderer;
+        var clock = new THREE.Clock();
+
+        var statsVR;
+        function init() {
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setClearColor(0x000000);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.vr.enabled = true;
+            renderer.vr.standing = true;
+            document.body.appendChild(renderer.domElement);
+
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100)
+            scene = new THREE.Scene();
+            scene.add(camera)
+
+            grabVR = new GrabVR(scene);
+
+            statsVR = new StatsVR(scene, camera);
+
+
+            WEBVR.getVRDisplay(function (display) {
+                renderer.vr.setDevice(display);
+                document.body.appendChild(WEBVR.getButton(display, renderer.domElement));
+            })
+
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            window.addEventListener('resize', onWindowResize, false);
+
+            //a scene light
+            scene.add(new THREE.HemisphereLight(0xffffff));
+
+            //grabable objects
+            //  cubes
+            for (var i = 0; i < 20; i++) {
+                var grabable = new THREE.Mesh(
+                //var grabable = new Physijs.BoxMesh(
+                    new THREE.CubeGeometry(1.0, 1.0, 1.0),
+                    new THREE.MeshBasicMaterial({
+                        color: 0xff0066,
+                        wireframe: true
+                    }),
+                    .01
+                )
+                grabable.position.x = getRandomInt(-10, 10);
+                grabable.position.y = getRandomInt(-10, 10);
+                grabable.position.z = getRandomInt(-10, 10);
+
+                grabVR.grabableObjects.push(grabable);
+
+                scene.add(grabable);
+            }
+             //  spheres
+             for (var i = 0; i < 20; i++) {
+                var grabable = new THREE.Mesh(
+                    new THREE.SphereGeometry(.5, 6, 6),
+                    new THREE.MeshBasicMaterial({
+                        color: 0x0099ff,
+                        wireframe: true
+                    }),
+                    undefined,
+                    { restitution: 1.0 }
+                )
+                grabable.position.x = getRandomInt(-10, 10);
+                grabable.position.y = getRandomInt(-10, 10);
+                grabable.position.z = getRandomInt(-10, 10);
+
+                grabVR.grabableObjects.push(grabable);
+
+                scene.add(grabable);
+            }
+            //  cones
+            for (var i = 0; i < 20; i++) {
+                var grabable = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0, 1, 1, 5),
+                    new THREE.MeshBasicMaterial({
+                        color: 0xffcc00,
+                        wireframe: true
+                    }),
+                    undefined,
+                    { restitution: 1.0 }
+                )
+                grabable.position.x = getRandomInt(-10, 10);
+                grabable.position.y = getRandomInt(-10, 10);
+                grabable.position.z = getRandomInt(-10, 10);
+
+                grabVR.grabableObjects.push(grabable);
+
+                scene.add(grabable);
+            }
+        }
+        init();
+
+        window.addEventListener('vr controller connected', function (event) {
+            var controller = event.detail;
+            grabVR.add(controller);
+
+            controller.standingMatrix = renderer.vr.getStandingMatrix();
+
+            controller.head = window.camera;
+
+            controller.addEventListener('grip press began', function (event) {
+                this.gamepad.hapticActuators[0].pulse(0.3, 25);
+                grabVR.grab(controller);
+            })
+            controller.addEventListener('grip press ended', function (event) {
+                grabVR.release(controller);
+            })
+
+            controller.addEventListener('disconnected', function (event) {
+                controller.parent.remove(controller)
+            })
+        })
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        var dt = 1;
+
+        function render(time) {
+            statsVR.msStart();
+            statsVR.update();
+
+            dt = clock.getDelta();
+
+            THREE.VRController.update();
+            grabVR.update(dt);
+
+            renderer.render(scene, camera);
+
+            statsVR.msEnd();
+        }
+        renderer.animate(render);
+
+    </script>
+</body>
+
+</html>
