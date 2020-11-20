@@ -44,5 +44,3 @@ Basic GrabVR demo.
 GrabVR demo using Cannonjs.
 
 [![GrabVR Example 2](./dist/client/img/grabvr-2.gif)](https://sbcode.net/threejs/grabvr-2/)
-
-
