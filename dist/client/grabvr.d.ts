@@ -16,5 +16,5 @@ export default class GrabVR {
     add(id: number, o: THREE.Object3D, gamepad: Gamepad): void;
     update(dt: number): void;
     addEventListener(type: string, eventHandler: any): void;
-    dispatchEvent(type: string, id: string): void;
+    dispatchEvent(type: string, id: number): void;
 }

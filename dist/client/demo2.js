@@ -28,9 +28,9 @@ world.gravity.set(0, -9.82, 0);
 const meshes = [];
 const bodies = [];
 const grabVR = new GrabVR();
-// grabVR.addEventListener("grabStart", (id: string) => { console.log("grabStart " + id) })
-// grabVR.addEventListener("grabEnd", (id: string) => { console.log("grabEnd " + id) })
-// grabVR.addEventListener("grabMove", (id: string) => { console.log("grabMove " + id) })
+grabVR.addEventListener("grabStart", (id) => { console.log("grabStart " + id); });
+grabVR.addEventListener("grabEnd", (id) => { console.log("grabEnd " + id); });
+grabVR.addEventListener("grabMove", (id) => { console.log("grabMove " + id); });
 //floor
 const planeGeometry = new THREE.PlaneGeometry(25, 25, 10, 10);
 const planeMesh = new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({

@@ -37,9 +37,9 @@ const meshes: THREE.Mesh[] = []
 const bodies: CANNON.Body[] = []
 
 const grabVR = new GrabVR()
-// grabVR.addEventListener("grabStart", (id: string) => { console.log("grabStart " + id) })
-// grabVR.addEventListener("grabEnd", (id: string) => { console.log("grabEnd " + id) })
-// grabVR.addEventListener("grabMove", (id: string) => { console.log("grabMove " + id) })
+grabVR.addEventListener("grabStart", (id: number) => { console.log("grabStart " + id) })
+grabVR.addEventListener("grabEnd", (id: number) => { console.log("grabEnd " + id) })
+grabVR.addEventListener("grabMove", (id: number) => { console.log("grabMove " + id) })
 
 
 //floor

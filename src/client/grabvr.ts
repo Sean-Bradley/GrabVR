@@ -72,7 +72,7 @@ export default class GrabVR {
                         this._grabbedObject[key].userData.isGrabbed = true
                         this._grabberHook[key].visible = true
                         this._hasAGrabbedObject[key] = true
-                        this.dispatchEvent("grabStart", key)
+                        this.dispatchEvent("grabStart", Number(key))
                     }
 
                     if (this._gamepad[key].axes[3] > 0.25) {
@@ -83,7 +83,7 @@ export default class GrabVR {
                         this._grabberHook[key].translateY(this._gamepad[key].axes[3] * dt * 10)
                     }
 
-                    this.dispatchEvent("grabMove", key)
+                    this.dispatchEvent("grabMove", Number(key))
                 }
             } else {
                 this._line[key].visible = false
@@ -95,7 +95,7 @@ export default class GrabVR {
                         this._hasAGrabbedObject[key] = false
                         this._grabberHook[key].visible = false
                         this._grabbedObject[key].userData.isGrabbed = false
-                        this.dispatchEvent("grabEnd", key)
+                        this.dispatchEvent("grabEnd", Number(key))
                     }
                 }
             }
@@ -111,7 +111,7 @@ export default class GrabVR {
         this._eventListeners.push(listener);
     }
 
-    public dispatchEvent(type: string, id: string) {
+    public dispatchEvent(type: string, id: number) {
         for (let i = 0; i < this._eventListeners.length; i++) {
             if (type === this._eventListeners[i].type) {
                 this._eventListeners[i].eventHandler(id)
