@@ -5,7 +5,6 @@ import GrabVR from './grabvr.js';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1.6, 3);
-scene.add(camera);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -79,7 +78,7 @@ controllerGrip1.addEventListener("connected", (e) => {
     grabVR.add(1, controllerGrip1, e.data.gamepad);
     scene.add(controllerGrip1);
 });
-const statsVR = new StatsVR(camera);
+const statsVR = new StatsVR(scene, camera);
 statsVR.setX(0);
 statsVR.setY(0);
 statsVR.setZ(-2);

@@ -7,7 +7,6 @@ const scene: THREE.Scene = new THREE.Scene()
 
 const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.set(0, 1.6, 3);
-scene.add(camera)
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setPixelRatio(window.devicePixelRatio)
@@ -113,7 +112,7 @@ controllerGrip1.addEventListener("connected", (e: any) => {
     scene.add(controllerGrip1)
 })
 
-const statsVR = new StatsVR(camera)
+const statsVR = new StatsVR(scene, camera)
 statsVR.setX(0)
 statsVR.setY(0)
 statsVR.setZ(-2)
