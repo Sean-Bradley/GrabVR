@@ -1,7 +1,4 @@
-//MIT License
-//Copyright (c) 2020 Sean Bradley
-//https://github.com/Sean-Bradley/GrabVR/blob/master/LICENSE
-import * as THREE from '/build/three.module.js';
+
 export default class GrabVR {
     constructor() {
         this._controller = {};

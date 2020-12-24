@@ -4,7 +4,7 @@ A module for grabbing objects in WebVR Three.js projects
 
 You can download the project and view the examples.
 
-```bash
+``` bash
 git clone https://github.com/Sean-Bradley/GrabVR.git
 cd GrabVR
 npm install
@@ -13,24 +13,67 @@ npm run dev
 
 Visit http://127.0.0.1:3000/
 
-This is a typescript project consisting of two sub projects with there own *tsconfigs*.
+## How to import GrabVR
 
-To edit this example, then modify the files in `./src/client/` or `./src/server/`
+You can copy the generated `./dist/client/grabvr.js` directly into your own project folder and import as a module.
 
-The projects will auto recompile if you started it by using *npm run dev*
-
-or
-
-You can simply just import the generated `./dist/client/grabvr.js` directly into your own project as a module.
-
-```javascript
+``` html
 <script type="module" src="./grabvr.js"></script>
 ```
 
-or as ES6 import
+or as a relative ES6 import
+
+``` javascript
+import GrabVR from './grabvr.js'
+```
+
+or if using a bundler such as webpack or rollup
+
+``` javascript
+import ButtonVR from 'buttonvr'
+```
+
+> Note
+If using a bundler, you will need to update the **import** reference in your copy of `grabvr.js`. By default it is set to ```import * as THREE from '/build/three.module.js'```. Try setting it to ```import * as THREE from 'three'```
+
+## Instantiate And Use
+
+Create a GrabVR object.
 
 ```javascript
-import GrabVR from './grabvr.js'
+const grabVR = new GrabVR()
+```
+
+Create some Object3Ds and add then to the GrabVR grabables.
+
+```javascript
+let grabable = new THREE.Mesh(
+    new THREE.BoxBufferGeometry(1.0, 1.0, 1.0),
+    new THREE.MeshBasicMaterial({
+        color: 0xff0066,
+        wireframe: true
+    })
+)
+scene.add(grabable)
+grabVR.grabableObjects().push(grabable);
+```
+
+Add VR your controllers to the scene (see example code for better understanding)
+
+```javascript
+const controllerGrip0 = renderer.xr.getControllerGrip(0)
+controllerGrip0.addEventListener("connected", (e: any) => {
+    controllerGrip0.add(lefthand)
+    grabVR.add(0, controllerGrip0, e.data.gamepad)
+    scene.add(controllerGrip0)
+})
+```
+
+Update in the render loop.
+
+```javascript
+grabVR.update(clock.getDelta());
+renderer.render(scene, camera)
 ```
 
 ## Example 1
@@ -44,3 +87,11 @@ Basic GrabVR demo.
 GrabVR demo using Cannonjs.
 
 [![GrabVR Example 2](./dist/client/img/grabvr-2.gif)](https://sbcode.net/threejs/grabvr-2/)
+
+## GrabVR Source Project
+
+This is a typescript project consisting of two sub projects with there own *tsconfigs*.
+
+To edit this example, then modify the files in `./src/client/` or `./src/server/`
+
+The projects will auto recompile if you started it by using *npm run dev*
