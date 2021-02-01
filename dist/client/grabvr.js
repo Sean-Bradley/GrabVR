@@ -25,9 +25,10 @@ export default class GrabVR {
         this._raycaster[id] = new THREE.Raycaster();
         this._quaternion[id] = new THREE.Quaternion();
         this._gamepad[id] = gamepad;
-        const geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vector3(0, 0, 0));
-        geometry.vertices.push(new THREE.Vector3(0, -100, 0));
+        const points = [];
+        points.push(new THREE.Vector3(0, 0, 0));
+        points.push(new THREE.Vector3(0, -100, 0));
+        let geometry = new THREE.BufferGeometry().setFromPoints(points);
         this._line[id] = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x8888ff }));
         this._line[id].visible = false;
         o.add(this._line[id]);

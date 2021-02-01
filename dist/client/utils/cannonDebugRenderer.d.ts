@@ -1,4 +1,4 @@
-import * as THREE from "/build/three.module.js";
+import * as THREE from '/build/three.module.js';
 export default class CannonDebugRenderer {
     scene: THREE.Scene;
     world: CANNON.World;
@@ -8,7 +8,6 @@ export default class CannonDebugRenderer {
     private _sphereGeometry;
     private _boxGeometry;
     private _planeGeometry;
-    private _cylinderGeometry;
     private _particleGeometry;
     private tmpVec0;
     private tmpVec1;
