@@ -1,6 +1,6 @@
 {
   "name": "grabvr",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "A module for grabbing objects in WebXR Three.js projects",
   "main": "./dist/client/grabvr.js",
   "scripts": {
