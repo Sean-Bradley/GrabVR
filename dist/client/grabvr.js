@@ -1,8 +1,10 @@
-//MIT License
-//Copyright (c) 2020 Sean Bradley https://sbcode.net
-//https://github.com/Sean-Bradley/GrabVR/blob/master/LICENSE
-import * as THREE from '/build/three.module.js';
-//import * as THREE from 'three'  //if using a bundler
+/**
+ * @license
+ * GrabVR library and demos
+ * Copyright 2018-2021 Sean Bradley https://sbcode.net
+ * https://github.com/Sean-Bradley/GrabVR/blob/master/LICENSE
+ */
+import * as THREE from "three";
 export default class GrabVR {
     constructor() {
         this._controller = {};
@@ -32,13 +34,13 @@ export default class GrabVR {
         this._line[id] = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x8888ff }));
         this._line[id].visible = false;
         o.add(this._line[id]);
-        this._grabberHook[id] = new THREE.Mesh(new THREE.SphereBufferGeometry(.1, 6, 6), new THREE.MeshBasicMaterial({
+        this._grabberHook[id] = new THREE.Mesh(new THREE.SphereBufferGeometry(0.1, 6, 6), new THREE.MeshBasicMaterial({
             color: 0x00ff00,
             wireframe: false,
             depthTest: false,
             depthWrite: false,
             transparent: true,
-            opacity: 0.5
+            opacity: 0.5,
         }));
         o.add(this._grabberHook[id]);
         this._grabberHook[id].visible = false;
@@ -47,7 +49,9 @@ export default class GrabVR {
         for (let key in Object.keys(this._controller)) {
             this._controller[key].getWorldPosition(this._raycaster[key].ray.origin);
             this._controller[key].getWorldQuaternion(this._quaternion[key]);
-            this._raycaster[key].ray.direction.copy(this._direction).applyEuler(new THREE.Euler().setFromQuaternion(this._quaternion[key], "XYZ"));
+            this._raycaster[key].ray.direction
+                .copy(this._direction)
+                .applyEuler(new THREE.Euler().setFromQuaternion(this._quaternion[key], "XYZ"));
             let intersects = this._raycaster[key].intersectObjects(this._grabableObjects);
             if (intersects.length > 0) {
                 this._line[key].visible = true;

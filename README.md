@@ -15,26 +15,15 @@ Visit http://127.0.0.1:3000/
 
 ## How to import GrabVR
 
-You can copy the generated `./dist/client/grabvr.js` directly into your own project folder and import as a module.
-
-``` html
-<script type="module" src="./grabvr.js"></script>
+```bash
+npm install grabvr
 ```
 
-or as a relative ES6 import
-
-``` javascript
-import GrabVR from './grabvr.js'
-```
-
-or if using a bundler such as webpack or rollup
+Import into your code
 
 ``` javascript
 import ButtonVR from 'buttonvr'
 ```
-
-> Note
-If using a bundler, you will need to update the **import** reference in your copy of `grabvr.js`. By default it is set to ```import * as THREE from '/build/three.module.js'```. Try setting it to ```import * as THREE from 'three'```
 
 ## Instantiate And Use
 

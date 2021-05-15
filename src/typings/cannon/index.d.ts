@@ -184,7 +184,7 @@ declare module CANNON {
         motorEquation: RotationalMotorEquation;
         axisA: Vec3;
         axisB: Vec3;
-        
+
         constructor(bodyA: Body, bodyB: Body, options?: IHingeConstraintOptions);
 
         enableMotor(): void;

@@ -1,4 +1,10 @@
-import * as THREE from '/build/three.module.js';
+/**
+ * @license
+ * GrabVR library and demos
+ * Copyright 2018-2021 Sean Bradley https://sbcode.net
+ * https://github.com/Sean-Bradley/GrabVR/blob/master/LICENSE
+ */
+import * as THREE from "three";
 export default class GrabVR {
     private _controller;
     private _raycaster;
