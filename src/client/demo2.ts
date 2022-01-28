@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import StatsVR from 'statsvr'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import GrabVR from './grabvr'
-import * as CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 //import CannonDebugRenderer from './utils/cannonDebugRenderer'
 
 const scene: THREE.Scene = new THREE.Scene()
