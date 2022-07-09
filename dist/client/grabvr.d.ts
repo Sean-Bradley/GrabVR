@@ -18,7 +18,7 @@ export default class GrabVR {
     private _direction;
     private _eventListeners;
     constructor();
-    grabableObjects(): THREE.Object3D[];
+    grabableObjects(): THREE.Object3D<THREE.Event>[];
     add(id: number, o: THREE.Object3D, gamepad: Gamepad): void;
     update(dt: number): void;
     addEventListener(type: string, eventHandler: any): void;
