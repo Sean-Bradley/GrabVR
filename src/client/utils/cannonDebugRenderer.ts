@@ -19,9 +19,9 @@ export default class CannonDebugRenderer {
     private _meshes: THREE.Mesh[] | THREE.Points[]
     private _material: THREE.MeshBasicMaterial
     private _particleMaterial = new THREE.PointsMaterial
-    private _sphereGeometry: THREE.SphereBufferGeometry
-    private _boxGeometry: THREE.BoxBufferGeometry
-    private _planeGeometry: THREE.PlaneBufferGeometry
+    private _sphereGeometry: THREE.SphereGeometry
+    private _boxGeometry: THREE.BoxGeometry
+    private _planeGeometry: THREE.PlaneGeometry
     private _particleGeometry: THREE.BufferGeometry
 
     private tmpVec0: CANNON.Vec3 = new CANNON.Vec3()
@@ -39,9 +39,9 @@ export default class CannonDebugRenderer {
 
         this._material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
         this._particleMaterial = new THREE.PointsMaterial({ color: 0xff0000, size: 10, sizeAttenuation: false, depthTest: false })
-        this._sphereGeometry = new THREE.SphereBufferGeometry(1)
-        this._boxGeometry = new THREE.BoxBufferGeometry(1, 1, 1)
-        this._planeGeometry = new THREE.PlaneBufferGeometry(10, 10, 10, 10)
+        this._sphereGeometry = new THREE.SphereGeometry(1)
+        this._boxGeometry = new THREE.BoxGeometry(1, 1, 1)
+        this._planeGeometry = new THREE.PlaneGeometry(10, 10, 10, 10)
         this._particleGeometry = new THREE.BufferGeometry();
         this._particleGeometry.setFromPoints([new THREE.Vector3(0, 0, 0)]);
     };

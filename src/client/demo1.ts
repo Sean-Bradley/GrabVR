@@ -30,7 +30,7 @@ const grabVR = new GrabVR()
 //  cubes
 for (var i = 0; i < 20; i++) {
     let grabable = new THREE.Mesh(
-        new THREE.BoxBufferGeometry(1.0, 1.0, 1.0),
+        new THREE.BoxGeometry(1.0, 1.0, 1.0),
         new THREE.MeshBasicMaterial({
             color: 0xff0066,
             wireframe: true

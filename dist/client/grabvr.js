@@ -34,7 +34,7 @@ export default class GrabVR {
         this._line[id] = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x8888ff }));
         this._line[id].visible = false;
         o.add(this._line[id]);
-        this._grabberHook[id] = new THREE.Mesh(new THREE.SphereBufferGeometry(0.1, 6, 6), new THREE.MeshBasicMaterial({
+        this._grabberHook[id] = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 6), new THREE.MeshBasicMaterial({
             color: 0x00ff00,
             wireframe: false,
             depthTest: false,
