@@ -36,18 +36,18 @@ const grabVR = new GrabVR()
 Create some Object3Ds and add then to the GrabVR grabables.
 
 ```javascript
-let grabable = new THREE.Mesh(
+const box = new THREE.Mesh(
     new THREE.BoxGeometry(1.0, 1.0, 1.0),
     new THREE.MeshBasicMaterial({
         color: 0xff0066,
         wireframe: true
     })
 )
-scene.add(grabable)
-grabVR.grabableObjects().push(grabable);
+scene.add(box)
+grabVR.grabableObjects().push(box);
 ```
 
-Add VR your controllers to the scene (see example code for better understanding)
+Add your VR controllers to the scene (see example code for better understanding)
 
 ```javascript
 const controllerGrip0 = renderer.xr.getControllerGrip(0)
