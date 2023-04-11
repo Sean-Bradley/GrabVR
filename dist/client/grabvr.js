@@ -1,12 +1,14 @@
+"use strict";
 /**
  * @license
  * GrabVR library and demos
- * Copyright 2018-2021 Sean Bradley https://sbcode.net
+ * Copyright 2018-2023 Sean Bradley https://sbcode.net
  * https://github.com/Sean-Bradley/GrabVR/blob/master/LICENSE
  */
-import * as THREE from "three";
-export default class GrabVR {
-    constructor() {
+Object.defineProperty(exports, "__esModule", { value: true });
+var THREE = require("three");
+var GrabVR = /** @class */ (function () {
+    function GrabVR() {
         this._controller = {};
         this._raycaster = {};
         this._quaternion = {};
@@ -19,18 +21,18 @@ export default class GrabVR {
         this._direction = new THREE.Vector3(0, -1, 0);
         this._eventListeners = new Array();
     }
-    grabableObjects() {
+    GrabVR.prototype.grabableObjects = function () {
         return this._grabableObjects;
-    }
-    add(id, o, gamepad) {
+    };
+    GrabVR.prototype.add = function (id, o, gamepad) {
         this._controller[id] = o;
         this._raycaster[id] = new THREE.Raycaster();
         this._quaternion[id] = new THREE.Quaternion();
         this._gamepad[id] = gamepad;
-        const points = [];
+        var points = [];
         points.push(new THREE.Vector3(0, 0, 0));
         points.push(new THREE.Vector3(0, -100, 0));
-        let geometry = new THREE.BufferGeometry().setFromPoints(points);
+        var geometry = new THREE.BufferGeometry().setFromPoints(points);
         this._line[id] = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x8888ff }));
         this._line[id].visible = false;
         o.add(this._line[id]);
@@ -44,15 +46,15 @@ export default class GrabVR {
         }));
         o.add(this._grabberHook[id]);
         this._grabberHook[id].visible = false;
-    }
-    update(dt) {
-        for (let key in Object.keys(this._controller)) {
+    };
+    GrabVR.prototype.update = function (dt) {
+        for (var key in Object.keys(this._controller)) {
             this._controller[key].getWorldPosition(this._raycaster[key].ray.origin);
             this._controller[key].getWorldQuaternion(this._quaternion[key]);
             this._raycaster[key].ray.direction
                 .copy(this._direction)
                 .applyEuler(new THREE.Euler().setFromQuaternion(this._quaternion[key], "XYZ"));
-            let intersects = this._raycaster[key].intersectObjects(this._grabableObjects);
+            var intersects = this._raycaster[key].intersectObjects(this._grabableObjects);
             if (intersects.length > 0) {
                 this._line[key].visible = true;
                 if (this._gamepad[key].buttons[1].pressed) {
@@ -92,16 +94,18 @@ export default class GrabVR {
                 this._grabberHook[key].getWorldPosition(this._grabbedObject[key].position);
             }
         }
-    }
-    addEventListener(type, eventHandler) {
-        const listener = { type: type, eventHandler: eventHandler };
+    };
+    GrabVR.prototype.addEventListener = function (type, eventHandler) {
+        var listener = { type: type, eventHandler: eventHandler };
         this._eventListeners.push(listener);
-    }
-    dispatchEvent(type, id) {
-        for (let i = 0; i < this._eventListeners.length; i++) {
+    };
+    GrabVR.prototype.dispatchEvent = function (type, id) {
+        for (var i = 0; i < this._eventListeners.length; i++) {
             if (type === this._eventListeners[i].type) {
                 this._eventListeners[i].eventHandler(id);
             }
         }
-    }
-}
+    };
+    return GrabVR;
+}());
+exports.default = GrabVR;

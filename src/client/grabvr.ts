@@ -1,7 +1,7 @@
 /**
  * @license
  * GrabVR library and demos
- * Copyright 2018-2021 Sean Bradley https://sbcode.net
+ * Copyright 2018-2023 Sean Bradley https://sbcode.net
  * https://github.com/Sean-Bradley/GrabVR/blob/master/LICENSE
  */
 
