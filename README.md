@@ -22,7 +22,7 @@ npm install grabvr
 Import into your code
 
 ``` javascript
-import ButtonVR from 'buttonvr'
+import GrabVR from 'grabvr'
 ```
 
 ## Instantiate And Use
